@@ -5,13 +5,25 @@
 @cohort = ""
 
 # method to get students from user
-def load_students
-  file = File.open("students.csv", "r")
+def load_students(filename = "students.csv")
+  file = File.open(filename, "r")
   file.readlines.each do |line|
     name, cohort = line.chomp.split(',')
     @students << {name: name, cohort: cohort.to_sym}
   end
   file.close
+end
+
+def try_load_students
+  filename = ARGV.first # first argument from the command line
+  return if filename.nil? # get out of the method if it isn't given
+  if File.exists?(filename) # if it exists
+    load_students(filename)
+    puts "Loaded #{@students.count} from #{filename}"
+  else # if it doesn't exist
+    puts "Sorry #{filename} doesn't exist."
+    exit # quit the program
+  end
 end
 
 def start_input
@@ -21,7 +33,7 @@ end
 
 def get_cohort
   loop do
-    @cohort = gets.chomp
+    @cohort = STDIN.gets.chomp
     @cohort = "november" if @cohort.empty?
     if @months.include? @cohort.to_sym.downcase
       break
@@ -38,12 +50,12 @@ end
 
 def input_students
   start_input
-  @name = gets.chomp
+  @name = STDIN.gets.chomp
   while !@name.empty? do
     print "What cohort is #{@name} in? "
     get_cohort
     update_list
-    @name = gets.chomp
+    @name = STDIN.gets.chomp
   end
 end
 
@@ -119,8 +131,9 @@ end
 def interactive_menu
   loop do
     print_menu
-    process(gets.chomp)
+    process(STDIN.gets.chomp)
   end
 end
 
+try_load_students
 interactive_menu
