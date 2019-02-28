@@ -5,6 +5,15 @@
 @cohort = ""
 
 # method to get students from user
+def load_students
+  file = File.open("students.csv", "r")
+  file.readlines.each do |line|
+    name, cohort = line.chomp.split(',')
+    @students << {name: name, cohort: cohort.to_sym}
+  end
+  file.close
+end
+
 def start_input
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice"
@@ -39,8 +48,8 @@ def input_students
 end
 
 def print_header
-  puts "The students of the Villains Academy".center(50)
-  puts "-------------".center(50)
+  puts "The students of the Villains Academy".center(50) if @students.count > 0
+  puts "-------------".center(50) if @students.count > 0
 end
 
 def update_cohorts
@@ -73,7 +82,7 @@ def print_list
 end
 
 def print_footer
-  puts "Overall, we have #{@students.count} great students".center(50)
+  puts "Overall, we have #{@students.count} great students".center(50) if @students.count > 0
 end
 
 def show_students
@@ -86,6 +95,7 @@ def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
   puts "3. Save the list to students.csv"
+  puts "4. Load the list from students.csv"
   puts "9. Exit"
 end
 
@@ -97,6 +107,8 @@ def process(selection)
     show_students
   when "3"
     save_students
+  when "4"
+    load_students
   when "9"
     exit
   else
