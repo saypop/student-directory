@@ -1,3 +1,5 @@
+$months = [:january, :february, :march, :april, :may, :june, :july, :august, :september, :october, :november, :december]
+
 # method to get students from user
 def input_students
   puts "Please enter the names of the students"
@@ -25,7 +27,7 @@ def input_students
     while true
       cohort = gets.chomp
       cohort = "november" if cohort.empty?
-      if ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"].include? cohort.downcase
+      if $months.include? cohort.to_sym.downcase
         break
       else
         print "Looks like you made a spelling mistake, please enter that month again or leave blank to use default: "
@@ -46,19 +48,21 @@ def print_header
 end
 def print_list(students) #, letter)
   cohorts(students).each do |cohort|
-    i = 0
-    puts "#{cohort.upcase} COHORT".center(50)
-    while i < students.count
-      puts "#{i + 1}. #{students[i][:name]}".center(50) if students[i][:cohort] == cohort # students[i][:name][0] == letter && students[i][:name].length < 12
-      i += 1
+    puts "#{cohort.to_s.upcase} COHORT".center(50)
+    i = 1
+    students.each do |student|
+      if student[:cohort] == cohort
+        puts "#{i}. #{student[:name]}".center(50)  # students[i][:name][0] == letter && students[i][:name].length < 12
+        i += 1
+      end
     end
   end
   # students.each.with_index(1) { |student, index| puts "#{index}. #{student[:name]} (#{student[:cohort]} cohort)" if student[:name][0] == letter && student[:name].length < 12 }
 end
 def cohorts(students)
   cohorts = []
-  students.each { |student| cohorts << student[:cohort] unless cohorts.include? student[:cohort] }
-  cohorts.sort!
+  $months.each { |month| cohorts << month if !cohorts.include?(month) && students.any? { |student| student[:cohort] == month } }
+  cohorts
 end
 def print_footer(names)
   puts "Overall, we have #{names.count} great students".center(50)
@@ -67,11 +71,37 @@ def get_letter
   print "Select a letter: "
   return gets.chomp
 end
-# call methods
-students = input_students
-# letter = get_letter
-if students.count > 0
-  print_header
-  print_list(students) #, letter)
-  print_footer(students)
+def interactive_menu
+  students = []
+  loop do
+    # 1. print the menu and ask the user what to do
+    puts "1. Input the students"
+    puts "2. Show the students"
+    puts "9. Exit"
+    # 2. read the input and save it into a variable
+    selection = gets.chomp
+    # 3. do what the user has asked
+    case selection
+    when "1"
+      students = input_students
+    when "2"
+      print_header
+      print_list(students)
+      print_footer(students)
+    when "9"
+      exit
+    else
+      puts "I don't understand, please try again."
+    end
+    # 4. repeat from step 1
+  end
 end
+# call methods
+# students = input_students
+# letter = get_letter
+# if students.count > 0
+#   print_header
+#   print_list(students) #, letter)
+#   print_footer(students)
+# end
+interactive_menu
